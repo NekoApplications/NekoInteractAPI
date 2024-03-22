@@ -15,6 +15,7 @@ public class Mod implements DedicatedServerModInitializer {
     public static Path privateDir = Path.of("./.nekoInteractApi");
     public static boolean hasMCDR = false;
     private final Logger logger = LogUtils.getLogger();
+    private final boolean forceEnableService = Boolean.getBoolean("neko.forceEnableService");
 
     @Override
     public void onInitializeServer() {
@@ -28,14 +29,20 @@ public class Mod implements DedicatedServerModInitializer {
             }
         }
         hasMCDR = OperatingSystem.Companion.getCurrent().walkProcessGroup().values().stream().anyMatch(it -> it.contains("python") || it.contains("mcdreforged"));
-        if (!hasMCDR){
-            logger.error("No MCDReforged configured in current environment, NekoInteractAPI will be unavailable!");
+        if (!forceEnableService) {
+            if (!hasMCDR) {
+                logger.error("No MCDReforged configured in current environment, NekoInteractAPI will be unavailable!");
+            } else {
+                enableServices();
+            }
         }else {
-            setUpServices();
+            logger.warn("System property neko.forceEnableService is only for development use.");
+            enableServices();
         }
     }
 
-    private void setUpServices(){
+    private void enableServices(){
+        logger.info("Launching Services.");
         NekoService.INSTANCE.start();
     }
 }
