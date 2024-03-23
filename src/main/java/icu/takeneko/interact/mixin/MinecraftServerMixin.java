@@ -14,7 +14,7 @@ import java.util.function.Function;
 public class MinecraftServerMixin {
 
     @Inject(method = "startServer", at = @At("RETURN"))
-    static <S extends MinecraftServer> void onServerStart(Function<Thread, S> serverFactory, CallbackInfoReturnable<S> cir){
+    private static <S extends MinecraftServer> void onServerStart(Function<Thread, S> serverFactory, CallbackInfoReturnable<S> cir){
         NekoService.INSTANCE.registerService("server_suggest_command", new CommandCompleteService(cir.getReturnValue()));
     }
 }

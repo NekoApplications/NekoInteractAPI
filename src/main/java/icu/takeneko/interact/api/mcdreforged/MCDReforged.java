@@ -18,4 +18,13 @@ public class MCDReforged {
         );
         return UtilKt.decodeJsonStringList(future.get().getData().get("suggestions"));
     }
+
+    public static String executeCommand(String command)throws ExecutionException, InterruptedException{
+        var future = NekoService.INSTANCE.sendRequestForResponse(
+                new RequestBuilder("mcdr_send_command")
+                        .set("command", command)
+                        .getRequest()
+        );
+        return future.get().getData().get("response");
+    }
 }

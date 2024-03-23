@@ -1,9 +1,22 @@
-# Fabric Example Mod
+<div align="center">
+<a><img src="./logo.png" width="180" height="180" alt="NekoInteractAPILogo"></a>
+</div>
 
-## Setup
+<div align="center">
 
-For setup instructions please see the [fabric wiki page](https://fabricmc.net/wiki/tutorial:setup) that relates to the IDE that you are using.
+# NekoInteractAPI
+_✨ 一个实现MC与MCDReforged双向通信的交互API插件 ✨_
 
-## License
+[NekoInteractAPI-MCDR](https://github.com/NekoApplications/NekoInteractAPI-MCDR) 的内置插件
 
-This template is available under the CC0 license. Feel free to learn from it and incorporate it in your own projects.
+</div>
+
+
+## 配置文件
+~~不需要~~
+
+请参照 [NekoInteractAPI-MCDR](https://github.com/NekoApplications/NekoInteractAPI-MCDR) 的README配置插件的配置文件
+
+
+## 许可
+本项目遵循 [MIT License](https://mit-license.org/) 许可

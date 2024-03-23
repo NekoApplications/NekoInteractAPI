@@ -1,17 +1,20 @@
 package icu.takeneko.interact.network
 
-import com.mojang.logging.LogUtils
 import icu.takeneko.interact.Mod
 import io.ktor.server.application.*
 import io.ktor.server.cio.*
 import io.ktor.server.engine.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
-import io.ktor.utils.io.CancellationException
+import io.ktor.utils.io.*
 import io.ktor.websocket.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import org.spongepowered.asm.service.MixinService
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
@@ -20,7 +23,7 @@ import kotlin.io.path.deleteIfExists
 import kotlin.io.path.div
 import kotlin.io.path.writeText
 
-private val logger = LogUtils.getLogger()
+private val logger = MixinService.getService().getLogger("")
 
 object NekoService : Thread("NekoInteractAPI-SocketServer") {
     internal var currentConnection: WebSocketServerSession? = null
@@ -49,7 +52,7 @@ object NekoService : Thread("NekoInteractAPI-SocketServer") {
             val resp = if (request.service in services) {
                 services[request.service]!!(request)
             } else {
-                Response(request.service, request.requestId,1, mapOf("error" to "Service ${request.service} not found."))
+                Response(request.service, request.requestId,1, "Service ${request.service} not found.", mapOf())
             }
             sendResponse(resp)
         }
@@ -60,7 +63,8 @@ object NekoService : Thread("NekoInteractAPI-SocketServer") {
         file.deleteIfExists()
         file.createFile()
         file.writeText(communicationPort.toString())
-        httpServer = embeddedServer(CIO, port = communicationPort, host = "127.0.0.1", module = Application::module)
+        httpServer = embeddedServer(CIO, port = communicationPort, host = "localhost", module = Application::module)
+        logger.info("[NekoInteractAPI] Socket Port: $communicationPort")
         httpServer.start(wait = true)
     }
 
@@ -82,7 +86,11 @@ object NekoService : Thread("NekoInteractAPI-SocketServer") {
             currentConnection?.send(json.encodeToString<Request>(request) + "\n")
             val future = CompletableFuture<Response>()
             responseHandlers[request.requestId] = {
-                future.complete(it)
+                if (it.status != 0) {
+                    future.completeExceptionally(RemoteException(it.status, it.message))
+                }else{
+                    future.complete(it)
+                }
             }
             future
         }
@@ -113,5 +121,6 @@ private fun Application.configureRouting() {
 }
 
 private fun Application.module() {
+    install(WebSockets)
     configureRouting()
 }
