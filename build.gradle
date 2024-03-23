@@ -1,8 +1,8 @@
 plugins {
-	id 'fabric-loom' version '1.5-SNAPSHOT'
-	id 'org.jetbrains.kotlin.jvm' version '1.9.23'
-	id("org.jetbrains.kotlin.plugin.serialization") version "1.9.23"
-	id 'maven-publish'
+    id 'fabric-loom' version '1.5-SNAPSHOT'
+    id 'org.jetbrains.kotlin.jvm' version '1.9.23'
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.23"
+    id 'maven-publish'
 }
 
 version = project.mod_version
@@ -10,65 +10,70 @@ group = project.maven_group
 def ktor_version = "2.3.9"
 
 base {
-	archivesName = project.archives_base_name
+    archivesName = project.archives_base_name
 }
 
 repositories {
-	mavenCentral()
-	mavenLocal()
-	maven { url "https://maven.fabricmc.net/" }
+    mavenCentral()
+    mavenLocal()
+    maven { url "https://maven.fabricmc.net/" }
 }
 
 dependencies {
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-	modImplementation "net.fabricmc:fabric-language-kotlin:1.10.19+kotlin.1.9.23"
-	include(implementation("io.ktor:ktor-network:$ktor_version"))
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc:fabric-language-kotlin:1.10.19+kotlin.1.9.23"
+
+    include(implementation("io.ktor:ktor-network:$ktor_version"))
+    include(implementation("io.ktor:ktor-server-core-jvm:$ktor_version"))
+    include(implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:$ktor_version"))
+    include(implementation("io.ktor:ktor-server-cio-jvm:$ktor_version"))
+    include(implementation("io.ktor:ktor-server-websockets-jvm:$ktor_version"))
 }
 
 processResources {
-	inputs.property "version", project.version
+    inputs.property "version", project.version
 
-	filesMatching("fabric.mod.json") {
-		expand "version": project.version
-	}
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = 17
+    it.options.release = 17
 }
 
 java {
-	withSourcesJar()
-	sourceCompatibility = JavaVersion.VERSION_17
-	targetCompatibility = JavaVersion.VERSION_17
+    withSourcesJar()
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 jar {
-	from("LICENSE") {
-		rename { "${it}_${project.base.archivesName.get()}"}
-	}
+    from("LICENSE") {
+        rename { "${it}_${project.base.archivesName.get()}" }
+    }
 }
 
 compileKotlin.kotlinOptions.jvmTarget = "17"
 compileKotlin {
-	kotlinOptions {
-		jvmTarget = "17"
-	}
+    kotlinOptions {
+        jvmTarget = "17"
+    }
 }
 compileTestKotlin {
-	kotlinOptions {
-		jvmTarget = "17"
-	}
+    kotlinOptions {
+        jvmTarget = "17"
+    }
 }
 
 publishing {
-	publications {
-		mavenJava(MavenPublication) {
-			from components.java
-		}
-	}
-	repositories {
-	}
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+    }
 }
