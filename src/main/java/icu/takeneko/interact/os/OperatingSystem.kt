@@ -1,6 +1,7 @@
 package icu.takeneko.interact.os
 
 import icu.takeneko.interact.Mod
+import oshi.SystemInfo
 import java.io.StringReader
 import java.nio.charset.Charset
 import java.util.concurrent.locks.LockSupport
@@ -9,7 +10,7 @@ import kotlin.io.path.*
 
 enum class OperatingSystem {
     WINDOWS {
-        override fun walkProcessGroup(): Map<Int, String> {
+        fun walkProcessGroup0(): Map<Int, String> {
             val result = mutableMapOf<Int, String>()
             val detectionExe = Mod.privateDir.resolve("GetParentProcess_windows.exe")
             detectionExe.deleteIfExists()
@@ -63,23 +64,21 @@ enum class OperatingSystem {
             return result
         }
     },
-    MACOS {
-        override fun walkProcessGroup(): Map<Int, String> {
-            return mapOf()
-        }
-    },
-    LINUX {
-        override fun walkProcessGroup(): Map<Int, String> {
-            return mapOf()
-        }
-    },
-    UNKNOWN {
-        override fun walkProcessGroup(): Map<Int, String> {
-            return mapOf()
-        }
-    };
+    MACOS,
+    LINUX,
+    UNKNOWN;
 
-    abstract fun walkProcessGroup(): Map<Int, String>
+    fun walkProcessGroup(): Map<Int, String>{
+        val resultMap = mutableMapOf<Int,String>()
+        val os = SystemInfo().operatingSystem
+        val processes = os.processes.associateBy { it.processID }
+        var currentProcess = os.currentProcess
+        while (true) {
+            resultMap[currentProcess.processID] = currentProcess.commandLine
+            currentProcess = processes[currentProcess.parentProcessID] ?: break
+        }
+        return resultMap
+    }
 
     companion object {
         var current: OperatingSystem

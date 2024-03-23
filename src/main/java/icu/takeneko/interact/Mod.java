@@ -28,6 +28,7 @@ public class Mod implements DedicatedServerModInitializer {
                 throw new RuntimeException(e);
             }
         }
+
         hasMCDR = OperatingSystem.Companion.getCurrent().walkProcessGroup().values().stream().anyMatch(it -> it.contains("python") || it.contains("mcdreforged"));
         if (!forceEnableService) {
             if (!hasMCDR) {
