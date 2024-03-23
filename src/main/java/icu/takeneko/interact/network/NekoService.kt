@@ -95,6 +95,10 @@ object NekoService : Thread("NekoInteractAPI-SocketServer") {
             future
         }
     }
+
+    fun shutdown() {
+        this.interrupt()
+    }
 }
 
 private fun Application.configureRouting() {
