@@ -49,7 +49,7 @@ object NekoService : Thread("NekoInteractAPI-SocketServer") {
             val resp = if (request.service in services) {
                 services[request.service]!!(request)
             } else {
-                Response(request.service, request.requestId, mapOf("error" to "Service ${request.service} not found."))
+                Response(request.service, request.requestId,1, mapOf("error" to "Service ${request.service} not found."))
             }
             sendResponse(resp)
         }
