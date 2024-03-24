@@ -12,6 +12,8 @@ import java.util.concurrent.ExecutionException;
 
 public class MCDReforged {
 
+    private MCDReforged(){}
+
     public static List<String> completeCommand(String cmd, int cursor) throws ExecutionException, InterruptedException {
         var future = NekoService.INSTANCE.sendRequestForResponse(
                 new RequestBuilder("mcdr_complete_command")
@@ -57,7 +59,7 @@ public class MCDReforged {
 
         public static void setPlayerPermission(String player,PermissionLevel permission) throws ExecutionException, InterruptedException {
             var future = NekoService.INSTANCE.sendRequestForResponse(
-                    new RequestBuilder("mcdr_permission_get")
+                    new RequestBuilder("mcdr_permission_set")
                             .set("player", player)
                             .set("permission",permission.getDescriptor())
                             .getRequest()

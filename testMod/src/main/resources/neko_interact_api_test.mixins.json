@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "icu.takeneko.interact.test.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "CommandManagerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+	}
+}

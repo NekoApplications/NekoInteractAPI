@@ -1,8 +1,8 @@
 {
 	"schemaVersion": 1,
-	"id": "neko_interact_api",
+	"id": "neko_interact_api_test",
 	"version": "${version}",
-	"name": "Neko Interact API",
+	"name": "Neko Interact API Test Mod",
 	"description": "",
 	"authors": [
 		"ZhuRuoLing",
@@ -12,20 +12,20 @@
 		"sources": "https://github.com/NekoApplications/NekoInteractAPI"
 	},
 	"license": "MIT",
-	"icon": "assets/neko_interact_api/icon.png",
+	"icon": "assets/neko_interact_api_test/icon.png",
 	"environment": "server",
 	"entrypoints": {
 		"server": [
-			"icu.takeneko.interact.Mod"
+			"icu.takeneko.interact.test.TestMod"
 		]
 	},
 	"mixins": [
-		"neko_interact_api.mixins.json"
+		"neko_interact_api_test.mixins.json"
 	],
 	"depends": {
 		"fabricloader": ">=0.15.0",
 		"minecraft": "~1.20.4",
 		"java": ">=17",
-		"fabric-language-kotlin": "*"
+		"neko_interact_api": "*"
 	}
 }

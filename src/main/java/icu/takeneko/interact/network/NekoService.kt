@@ -39,6 +39,7 @@ object NekoService : Thread("NekoInteractAPI-SocketServer") {
         }
 
     suspend fun handleIncoming(line: String) {
+        logger.debug("Received: $line")
         val response = json.decodeFromString<Response>(line)
         val id = response.requestId
         if (responseHandlers.containsKey(id)) {
@@ -83,7 +84,9 @@ object NekoService : Thread("NekoInteractAPI-SocketServer") {
             throw IllegalStateException("Service Unavailable!")
         }
         return runBlocking {
-            currentConnection?.send(json.encodeToString<Request>(request) + "\n")
+            val requestString = json.encodeToString<Request>(request)
+            logger.debug("Sending $requestString")
+            currentConnection!!.send(requestString + "\n")
             val future = CompletableFuture<Response>()
             responseHandlers[request.requestId] = {
                 if (it.status != 0) {
