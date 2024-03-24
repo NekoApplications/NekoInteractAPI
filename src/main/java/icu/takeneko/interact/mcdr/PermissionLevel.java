@@ -1,5 +1,7 @@
 package icu.takeneko.interact.mcdr;
 
+import java.util.Objects;
+
 public enum PermissionLevel {
     OWNER(4,"owner"),
     ADMIN(3,"admin"),
@@ -20,5 +22,16 @@ public enum PermissionLevel {
             if (value.level == i)return value;
         }
         return GUEST;
+    }
+
+    public static PermissionLevel of(String desc){
+        for (PermissionLevel value:PermissionLevel.values()){
+            if (Objects.equals(value.descriptor, desc))return value;
+        }
+        return GUEST;
+    }
+
+    public String getDescriptor() {
+        return descriptor;
     }
 }

@@ -7,11 +7,9 @@ import io.ktor.server.engine.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.utils.io.*
+import io.ktor.utils.io.CancellationException
 import io.ktor.websocket.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.spongepowered.asm.service.MixinService
@@ -23,7 +21,7 @@ import kotlin.io.path.deleteIfExists
 import kotlin.io.path.div
 import kotlin.io.path.writeText
 
-private val logger = MixinService.getService().getLogger("")
+private val logger = MixinService.getService().getLogger("NekoService")
 
 object NekoService : Thread("NekoInteractAPI-SocketServer") {
     internal var currentConnection: WebSocketServerSession? = null
@@ -59,13 +57,15 @@ object NekoService : Thread("NekoInteractAPI-SocketServer") {
     }
 
     override fun run() {
-        val file = Mod.privateDir / "port"
-        file.deleteIfExists()
-        file.createFile()
-        file.writeText(communicationPort.toString())
-        httpServer = embeddedServer(CIO, port = communicationPort, host = "localhost", module = Application::module)
-        logger.info("[NekoInteractAPI] Socket Port: $communicationPort")
-        httpServer.start(wait = true)
+        try{
+            val file = Mod.privateDir / "port"
+            file.deleteIfExists()
+            file.createFile()
+            file.writeText(communicationPort.toString())
+            httpServer = embeddedServer(CIO, port = communicationPort, host = "localhost", module = Application::module)
+            logger.info("[NekoInteractAPI] Socket Port: $communicationPort")
+            httpServer.start(wait = true)
+        }catch (_:InterruptedException){}
     }
 
     fun registerService(id: String, service: Service) {
@@ -97,6 +97,8 @@ object NekoService : Thread("NekoInteractAPI-SocketServer") {
     }
 
     fun shutdown() {
+        logger.info("[NekoInteractAPI] Stopping!")
+        sleep(100) // ensure MCDReforged has received service state change
         this.interrupt()
     }
 }
@@ -107,12 +109,16 @@ private fun Application.configureRouting() {
             try{
                 NekoService.currentConnection?.cancel()
                 NekoService.currentConnection = this
-                logger.info("New Incoming Connection ${NekoService.currentConnection}, discarding old connection.")
+                logger.info("New Incoming Connection ${NekoService.currentConnection.hashCode()}, discarding old connection.")
                 for (frame in this.incoming) {
                     frame as? Frame.Text ?: continue
                     val text: String = frame.readText()
                     if (text.startsWith("Heartbeat_PING_")) {
                         this.send(text.replace("PING", "PONG"))
+                        continue
+                    }
+                    if (text.startsWith("Connect_PACKET_")){
+                        logger.info("Session connection established.")
                         continue
                     }
                     NekoService.handleIncoming(text)

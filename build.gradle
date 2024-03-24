@@ -3,6 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.9.23'
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.23"
     id 'maven-publish'
+    id 'com.github.johnrengelman.shadow' version "7.1.2"
 }
 
 version = project.mod_version
@@ -11,6 +12,10 @@ def ktor_version = "2.3.9"
 
 base {
     archivesName = project.archives_base_name
+}
+configurations {
+    api.extendsFrom includeApi
+    shadowInclude
 }
 
 repositories {
@@ -25,11 +30,11 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc:fabric-language-kotlin:1.10.19+kotlin.1.9.23"
 
-    include(implementation("io.ktor:ktor-network:$ktor_version"))
-    include(implementation("io.ktor:ktor-server-core-jvm:$ktor_version"))
-    include(implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:$ktor_version"))
-    include(implementation("io.ktor:ktor-server-cio-jvm:$ktor_version"))
-    include(implementation("io.ktor:ktor-server-websockets-jvm:$ktor_version"))
+    shadowInclude(implementation("io.ktor:ktor-network:$ktor_version"))
+    shadowInclude(implementation("io.ktor:ktor-server-core-jvm:$ktor_version"))
+    shadowInclude(implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:$ktor_version"))
+    shadowInclude(implementation("io.ktor:ktor-server-cio-jvm:$ktor_version"))
+    shadowInclude(implementation("io.ktor:ktor-server-websockets-jvm:$ktor_version"))
 }
 
 processResources {
@@ -67,6 +72,24 @@ compileTestKotlin {
         jvmTarget = "17"
     }
 }
+
+
+shadowJar {
+    archiveClassifier = "all-dev"
+    configurations = [project.configurations.shadowInclude]
+    minimize()
+    from("LICENSE") {
+        rename { "${it}_${project.archivesBaseName}" }
+    }
+    exclude "/kotlin*"
+}
+
+task("remapShadowJar", type: net.fabricmc.loom.task.RemapJarTask, dependsOn: shadowJar) {
+    input = shadowJar.archiveFile
+    archiveFileName = shadowJar.archiveFileName.get().replaceAll("-dev\\.jar\$", ".jar")
+    addNestedDependencies = true
+}
+
 
 publishing {
     publications {
