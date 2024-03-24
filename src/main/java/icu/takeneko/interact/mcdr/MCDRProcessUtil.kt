@@ -16,3 +16,7 @@ fun getMCDReforgedProcessPid():Int{
     }
     return -1
 }
+
+fun getMCDReforgedProcessWorkingDir(){
+
+}

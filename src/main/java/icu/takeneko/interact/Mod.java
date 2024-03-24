@@ -1,9 +1,8 @@
 package icu.takeneko.interact;
 
 import com.mojang.logging.LogUtils;
-import icu.takeneko.interact.mcdr.DetectionKt;
+import icu.takeneko.interact.mcdr.MCDRProcessUtilKt;
 import icu.takeneko.interact.network.NekoService;
-import icu.takeneko.interact.server.CommandCompleteService;
 import net.fabricmc.api.DedicatedServerModInitializer;
 import org.slf4j.Logger;
 
@@ -30,7 +29,7 @@ public class Mod implements DedicatedServerModInitializer {
             }
         }
 
-        hasMCDR = DetectionKt.checkIsMCDReforgedPresent();
+        hasMCDR = MCDRProcessUtilKt.checkIsMCDReforgedPresent();
         if (!forceEnableService) {
             if (!hasMCDR) {
                 logger.error("No MCDReforged configured in current environment, NekoInteractAPI will be unavailable!");
